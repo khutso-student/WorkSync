@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Dashboard from '../Component/Dashboard';
 import Employees from '../Component/Employees';
 import Projects from '../Component/Projects';
@@ -14,41 +14,66 @@ export default function MainDashboard() {
   const [employeeCount, setEmployeeCount] = useState(0);
   const [projectCount, setProjectCount] = useState(0);
   const [employees, setEmployees] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
- const [searchTerm, setSearchTerm] = useState('');
+  // Fetch employees only
+  const fetchEmployees = useCallback(async () => {
+    try {
+      const employeeData = await getEmployees();
+      setEmployeeCount(employeeData.length);
+      setEmployees(employeeData);
+    } catch (err) {
+      console.error("Failed to fetch employees", err);
+    }
+  }, []);
 
+  // Fetch projects only
+  const fetchProjectsOnly = useCallback(async () => {
+    try {
+      const projectData = await getProjects();
+      setProjectCount(projectData.length);
+      setProjects(projectData);
+    } catch (err) {
+      console.error("Failed to fetch projects", err);
+    }
+  }, []);
 
-  useEffect(() => {
-    console.log("MainDashboard mounted, fetching employees...");
-    const fetchCount = async () => {
-      try {
-        const data = await getEmployees();
-        console.log("Employees fetched:", data);
-        setEmployeeCount(data.length);
-        setEmployees(data);
-        const projData = await getProjects();
-        setProjectCount(projData.length);
-      } catch (err) {
-        console.error("Failed to fetch initial employee count", err);
-      }
-  };
-
-  fetchCount();
+  const fetchProjects = useCallback(async () => {
+  try {
+    const projectData = await getProjects();  // fetch projects only
+    setProjectCount(projectData.length);      // update count in state
+    setProjects(projectData);                  // update projects in state
+    return projectData;                        // RETURN the projects array
+  } catch (err) {
+    console.error("Failed to fetch projects", err);
+    return [];  // return empty array if error happens
+  }
 }, []);
+
+
+  // Fetch both on mount
+  useEffect(() => {
+    fetchEmployees();
+    fetchProjects();
+}, [fetchEmployees, fetchProjects]);
+
+
+  // Completed projects memoized
+  const completedProjects = useMemo(() => {
+    return projects.filter(
+      (p) => p.status.toLowerCase() === 'complete' || p.status.toLowerCase() === 'completed'
+    );
+  }, [projects]);
 
   const addNotification = (msg) => {
     setNotifications((prev) => [...prev, { id: Date.now(), msg }]);
-};
-
-
-const clearNotifications = () => setNotifications([]);
-
-
-
-  const toggleSideNav = () => {
-    setIsOpen(!isOpen);
   };
+
+  const clearNotifications = () => setNotifications([]);
+
+  const toggleSideNav = () => setIsOpen(!isOpen);
 
   const navItems = [
     { label: 'Dashboard', key: 'dashboard' },
@@ -59,24 +84,39 @@ const clearNotifications = () => setNotifications([]);
     { label: 'Settings', key: 'settings' },
   ];
 
-const renderComponent = () => {
+  const renderComponent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard employeeCount={employeeCount}
-                          projectCount={projectCount} 
-                          employees={employees}
-                          notifications={notifications}
-                          clearNotifications={clearNotifications} 
-                          searchTerm={searchTerm}         // <== pass it here
-                          setSearchTerm={setSearchTerm} />;
+        return (
+          <Dashboard
+            employeeCount={employeeCount}
+            projectCount={projectCount}
+            employees={employees}
+            notifications={notifications}
+            clearNotifications={clearNotifications}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            completedProjects={completedProjects}
+          />
+        );
       case 'employees':
-        return  <Employees setEmployeeCount={setEmployeeCount}
-                          setEmployees={setEmployees}
-                          addNotification={addNotification} />
+        return (
+          <Employees
+            setEmployeeCount={setEmployeeCount}
+            setEmployees={setEmployees}
+            addNotification={addNotification}
+          />
+        );
       case 'projects':
-        return <Projects setProjectCount={setProjectCount} />;
+        return (
+          <Projects
+            projects={projects}
+            setProjectCount={setProjectCount}
+            refreshProjects={fetchProjects}  // Only refresh projects on update
+          />
+        );
       case 'tasks':
-        return <Tasks />;
+        return <Tasks completedProjects={completedProjects} />;
       case 'chat':
         return <Chat />;
       case 'settings':
@@ -84,8 +124,7 @@ const renderComponent = () => {
       default:
         return <Dashboard employeeCount={employeeCount} />;
     }
-};
-
+  };
 
   const icons = {
     dashboard: (
@@ -123,50 +162,75 @@ const renderComponent = () => {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
-        <div className={`bg-blue-500 text-[#fff] transition-all duration-300 ${isOpen ? 'w-50' : 'w-16'} relative flex flex-col justify-between h-screen`}>
+      <div
+        className={`bg-blue-500 text-[#fff] transition-all duration-300 ${
+          isOpen ? 'w-50' : 'w-16'
+        } relative flex flex-col justify-between h-screen`}
+      >
         <div>
-            <button
+          <button
             className="absolute top-4 right-2 bg-white p-1.5 cursor-pointer duration-300 rounded-full text-blue-600 hover:bg-blue-400 hover:text-white"
             onClick={toggleSideNav}
-            >
+          >
             {isOpen ? (
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
             ) : (
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
             )}
-            </button>
+          </button>
 
-            <div className="mt-16 flex flex-col gap-4 px-1.5">
+          <div className="mt-16 flex flex-col gap-4 px-1.5">
             {navItems.map((item) => (
-                <button
+              <button
                 key={item.key}
                 onClick={() => setActiveTab(item.key)}
                 className={`flex items-center text-[#fff] px-4 py-2 hover:bg-[#cbd8df6b] rounded-lg transition-colors ${
-                    activeTab === item.key ? 'bg-white text-blue-500' : ''
+                  activeTab === item.key ? 'bg-white text-blue-500' : ''
                 } ${isOpen ? 'justify-start' : 'justify-center'}`}
-                >
+              >
                 {icons[item.key]}
                 {isOpen && <span className="ml-4 text-sm">{item.label}</span>}
-                </button>
+              </button>
             ))}
-            </div>
+          </div>
         </div>
 
         {/* WORKSYNC Footer */}
-            <div className={`text-center text-white py-4 ${isOpen ? '' : 'text-xs rotate-[-90deg] origin-left mb-10 ml-[-10px]'}`}>
-                <h1 className="font-semibold tracking-wide">{isOpen ? 'WORKSYNC' : 'W'}</h1>
-            </div>
+        <div
+          className={`text-center text-white py-4 ${
+            isOpen ? '' : 'text-xs rotate-[-90deg] origin-left mb-10 ml-[-10px]'
+          }`}
+        >
+          <h1 className="font-semibold tracking-wide">{isOpen ? 'WORKSYNC' : 'W'}</h1>
         </div>
-
+      </div>
 
       {/* Main Content */}
-        <div className="flex-1 bg-[#fff] p-2 overflow-y-auto">
-            {renderComponent()}
-        </div>
+      <div className="flex-1 bg-[#f7f7f7] overflow-y-auto">{renderComponent()}</div>
     </div>
   );
 }

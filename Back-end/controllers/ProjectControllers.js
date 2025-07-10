@@ -19,27 +19,32 @@ const getProjects = async (req, res) => {
   }
 };
 
+const createProject = async (req, res) => {
+  try {
+    const { title, description, status } = req.body;
 
-const createProject = async (req, res) =>{
-    try {
-        const { title, description, status } = req.body;
-
-        if(!title || !description || !status) {
-            return res.status(400).json({ message: 'All fields are required' });
-        }
-
-        const newProject = new Projects({ title, description, status });
-        await newProject.save();
-        res.status(201).json(newProject);
-    } catch (error) {
-        console.error('Error creating project:', error.message);
-        res.status(400).json({ message: 'Failed to create project', error: error.message });
+    if (!title || !description || !status) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
+
+    // Enforce allowed status values (optional)
+    const allowedStatus = ['Not complete', 'In progress', 'Complete'];
+    if (!allowedStatus.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    const newProject = new Projects({ title, description, status });
+    await newProject.save();
+    res.status(201).json(newProject);
+  } catch (error) {
+    console.error('Error creating project:', error.message);
+    res.status(400).json({ message: 'Failed to create project', error: error.message });
+  }
 };
 
 const updateProject = async (req, res) => {
   try {
-    const { role } = req.user; 
+    const { role } = req.user;
     const project = await Projects.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
@@ -48,13 +53,23 @@ const updateProject = async (req, res) => {
       if (!req.body.status) {
         return res.status(400).json({ message: 'Status is required' });
       }
+      const allowedStatus = ['Not complete', 'In progress', 'Complete'];
+      if (!allowedStatus.includes(req.body.status)) {
+        return res.status(400).json({ message: 'Invalid status value' });
+      }
       project.status = req.body.status;
     } else if (role === 'admin') {
       // Admins can update everything
       const { title, description, status } = req.body;
       if (title) project.title = title;
       if (description) project.description = description;
-      if (status) project.status = status;
+      if (status) {
+        const allowedStatus = ['Not complete', 'In progress', 'Complete'];
+        if (!allowedStatus.includes(status)) {
+          return res.status(400).json({ message: 'Invalid status value' });
+        }
+        project.status = status;
+      }
     } else {
       return res.status(403).json({ message: 'Unauthorized' });
     }
@@ -67,16 +82,33 @@ const updateProject = async (req, res) => {
   }
 };
 
+const deleteProject = async (req, res) => {
+  try {
+    const deleted = await Projects.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'Project not found' });
+    res.status(200).json({ message: 'Project deleted' });
+  } catch (error) {
+    console.error('Error deleting project:', error.message);
+    res.status(500).json({ message: 'Failed to delete project' });
+  }
+};
 
-const deleteProject = async (req, res) =>{
-    try {
-        const deleted = await Projects.findByIdAndDelete(req.params.id);
-        if(!deleted) return res.status(404).json({ message: 'Project not found' });
-        res.status(200).json({ message: 'Project deleted' });
-    } catch (error) {
-        console.error('Error deleting project:', error.message);
-        res.status(500).json({ message: 'Failed to delete project' });
-    }
-}
+// Fetch only completed projects (for tasks)
+const getCompletedProjects = async (req, res) => {
+  try {
+    // Use "Complete" to match your data
+    const completedProjects = await Projects.find({ status: 'Complete' });
+    res.status(200).json(completedProjects);
+  } catch (error) {
+    console.error('Error fetching completed projects:', error.message);
+    res.status(500).json({ message: 'Failed to fetch completed tasks' });
+  }
+};
 
-module.exports = { getProjects, createProject, updateProject, deleteProject };
+module.exports = {
+  getProjects,
+  createProject,
+  updateProject,
+  deleteProject,
+  getCompletedProjects,
+};

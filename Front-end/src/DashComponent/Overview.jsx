@@ -15,7 +15,13 @@ const StatCard = ({ icon, label, value, bgColor, iconColor }) => (
   </div>
 );
 
-export default function Overview({ employeeCount, projectCount, employees= [] }) {
+export default function Overview({
+  employeeCount,
+  projectCount,
+  employees = [],
+  completedProjects = [],
+  users = [] // ✅ expecting users array with name & role
+}) {
   return (
     <main className="flex flex-col md:flex-row justify-center gap-4 w-full h-auto">
       {/* Overview Section */}
@@ -43,7 +49,7 @@ export default function Overview({ employeeCount, projectCount, employees= [] })
           <StatCard
             icon={<GoTasklist />}
             label="Task Completed"
-            value={0}
+            value={completedProjects.length}
             bgColor="bg-green-300"
             iconColor="text-green-600"
           />
@@ -59,14 +65,14 @@ export default function Overview({ employeeCount, projectCount, employees= [] })
         <ProjectsProgress />
       </div>
 
-      {/* Recent Employees Section */}
-      <div className="flex flex-col  h-auto md:w-1/3 p-2 border border-[#ebebeb] rounded-sm">
+      {/* Side Section */}
+      <div className="flex flex-col  h-auto md:w-1/3 p-2 border mb-1 border-[#ebebeb] rounded-sm">
+        {/* Recent Employees */}
         <div className="flex justify-between items-center w-full py-2 px-2">
           <h1 className="text-[#252525] font-semibold">Recent Employees</h1>
-          
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1">
-          {employees.slice(-6).reverse().map((emp) => (
+          {employees.slice(-8).reverse().map((emp) => (
             <div key={emp._id} className="bg-white p-4 shadow rounded-lg border border-gray-200">
               <h3 className="text-sm font-semibold text-[#222627]">{emp.name}</h3>
               <p className="text-sm text-gray-600">{emp.position}</p>
@@ -74,11 +80,29 @@ export default function Overview({ employeeCount, projectCount, employees= [] })
           ))}
         </div>
 
-        <div className='border border-[#ebebeb] rounded-sm p-2 h-full'>
-            <p className='text-[#252525] font-semibold'>Upcoming Events</p>
+        {/* Users Section */}
+        <div className=" mt-5 p-2 h-auto">
+          <h1 className="text-[#252525] font-semibold mb-2">System Users</h1>
+          {users.length === 0 ? (
+            <p className="text-sm text-gray-600">No users available</p>
+          ) : (
+            <ul className="space-y-2">
+              {users.slice(-6).reverse().map((u, i) => (
+                <li
+                  key={i}
+                  className="flex justify-between items-center bg-white border border-gray-200 rounded-md px-3 py-2 shadow-sm"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-[#2a2a2a]">{u.name}</p>
+                    <p className="text-xs text-gray-500">{u.role}</p>
+                  </div>
+                  <span className="text-green-500 text-xs">● Active</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </main>
   );
 }
-
