@@ -18,7 +18,7 @@ export default function ChangePassword() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await API.put('/settings/user/change-password', formData, {
+      const res = await API.put('/api/settings/user/change-password', formData, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       toast.success(res.data.message || 'Password changed successfully!');
@@ -31,44 +31,44 @@ export default function ChangePassword() {
   };
 
   return (
-    <section className=" p-1   w-1/2 mx-auto ">
-        <div className='bg-white rounded-xl  p-4 '>
-              <h2 className="text-md font-semibold text-gray-900 mb-6  pb-2">Change Password</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <label className="block">
-            <span className="text-gray-700 font-medium mb-1 block">Current Password</span>
-            <input
-                type="password"
-                name="currentPassword"
-                value={formData.currentPassword}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-1 text-sm rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            </label>
+    <section className="w-full bg-white rounded-xl border border-gray-200 shadow-sm px-6 py-5">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">Change Password</h3>
 
-            <label className="block">
-            <span className="text-gray-700 font-medium mb-1 block">New Password</span>
-            <input
-                type="password"
-                name="newPassword"
-                value={formData.newPassword}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-1 text-sm rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            </label>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+          <input
+            type="password"
+            name="currentPassword"
+            value={formData.currentPassword}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 text-sm rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
 
-            <button
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+          <input
+            type="password"
+            name="newPassword"
+            value={formData.newPassword}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 text-sm rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
+
+        <div className="text-right">
+          <button
             type="submit"
             disabled={loading}
-            className=" bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 text-sm rounded-md font-semibold transition"
-            >
+            className="inline-block px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition"
+          >
             {loading ? 'Changing...' : 'Change Password'}
-            </button>
-        </form>
+          </button>
         </div>
-    
+      </form>
     </section>
   );
 }

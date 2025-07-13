@@ -85,6 +85,8 @@ exports.changePassword = async (req, res) => {
 };
 
 exports.uploadProfilePicture = async (req, res) => {
+    console.log('📦 Uploaded file:', req.file); // <== This should NOT be undefined
+    console.log('🧍‍♂️ Authenticated user:', req.user);
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });

@@ -22,36 +22,41 @@ export default function ProfilePicture() {
     }
   };
 
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    if (!file) {
-      toast.error('Please select an image');
-      return;
-    }
+const handleUpload = async (e) => {
+  e.preventDefault();
+  if (!file) {
+    toast.error('Please select an image');
+    return;
+  }
 
-    const formData = new FormData();
-    formData.append('profilePicture', file);
+  const formData = new FormData();
+  formData.append('profilePicture', file);
 
-    setLoading(true);
-    try {
-      const res = await API.put('/settings/user/profile-picture', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
+  setLoading(true);
+  try {
+    console.log("🔑 Token:", user?.token);
+    const res = await API.put('/api/settings/user/profile-picture', formData, {
+      headers: {
+        Authorization: `Bearer ${user.token}` // ✅ FIXED
+        // Do NOT manually set Content-Type here
+      },
+    });
 
-      toast.success('Profile picture updated!');
-      setUser(prev => ({ ...prev, ...res.data.user }));
-      setFile(null);
-      setPreview('');
-      setShowProfile(false);
-    } catch (err) {
-      toast.error(err?.response?.data?.message || 'Upload failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+    toast.success('Profile picture updated!');
+    setUser((prev) => ({ ...prev, ...res.data.user }));
+    setFile(null);
+    setPreview('');
+    setShowProfile(false);
+  } catch (err) {
+    console.error('Error response:', err?.response?.data);
+    toast.error(err?.response?.data?.message || 'Upload failed');
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
 
   return (
     <section className="bg-white rounded-xl border border-gray-200 p-6 mb-6 mx-auto w-full max-w-5xl">
@@ -103,7 +108,7 @@ export default function ProfilePicture() {
             className="relative z-50 w-full max-w-xl bg-white rounded-xl p-6 shadow-lg"
           >
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Update Profile Picture</h3>
-            <form onSubmit={handleUpload} className="space-y-4">
+            <form onSubmit={handleUpload} className="space-y-4 mb-4">
               <input
                 type="file"
                 accept="image/*"
@@ -114,7 +119,7 @@ export default function ProfilePicture() {
                 <img
                   src={preview}
                   alt="Preview"
-                  className="w-24 h-24 rounded-full object-cover border mx-auto"
+                  className="w-24 h-24 rounded-full object-cover  mx-auto"
                 />
               )}
               <div className="flex justify-end gap-3">
@@ -135,7 +140,7 @@ export default function ProfilePicture() {
               </div>
             </form>
 
-            <hr className="my-6" />
+         
             <ProfileInfo />
           </div>
         </div>
