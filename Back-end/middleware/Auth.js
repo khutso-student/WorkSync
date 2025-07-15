@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 
 exports.protect = (req, res, next) => {
     const auth = req.headers.authorization;
+    console.log("🛡️ Incoming token:", auth);
 
     if(!auth || !auth.startsWith("Bearer ")) {
         return res.status(401).json({ message: "No token provided" });

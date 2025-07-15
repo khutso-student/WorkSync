@@ -83,45 +83,65 @@ export default function ProjectsProgress() {
   if (!tokenAvailable) return <div className="p-4 text-center text-red-600">🔒 You must be logged in to view progress.</div>;
 
   return (
-    <main className="flex justify-between gap-2 items-center w-full h-auto py-1.5 rounded-lg">
-      <div className='w-full border border-[#e3eff0] rounded-xl py-2 px-2'>
-        <div className='flex justify-between items-center border-b border-[#a3a0a0] w-full px-1 py-3'>
-          <h1 className="text-[#252525] font-semibold">Project Progress Section</h1>
-          <button
-            onClick={handleDownload}
-            className="flex justify-center items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer px-3 py-1.5 rounded text-sm"
-          >
-            <IoDownload className='text-[17px] mb-0.5' /> Export PNG
-          </button>
+    <main className="flex flex-col lg:flex-row justify-between gap-4 w-full h-auto py-2 rounded-lg">
+        <div className="w-full border border-[#e3eff0] rounded-xl p-3">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#a3a0a0] w-full gap-2 px-1 pb-3">
+            <h1 className="text-[#252525] font-semibold text-base sm:text-lg">
+              Project Progress Section
+            </h1>
+            <button
+              onClick={handleDownload}
+              className="flex justify-center items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded text-sm"
+            >
+              <IoDownload className="text-[17px] mb-0.5" /> Export PNG
+            </button>
+          </div>
+
+    {/* Body Section */}
+    <div className="flex flex-col md:flex-row justify-between gap-4 w-full mt-4" ref={chartRef}>
+      
+      {/* Stats Section */}
+      <div className="flex flex-row md:flex-col justify-around text-center md:justify-between w-full md:w-auto gap-6 md:gap-8">
+        <div>
+          <h1 className="text-[28px] text-[#0f0f0f] font-bold">75%</h1>
+          <p className="text-sm text-[#3d3c3c]">WorkSync Redesign</p>
         </div>
-
-        <div className='flex justify-between gap-2 w-full h-full' ref={chartRef}>
-          <div className='flex flex-col justify-between text-center py-8'>
-            <div>
-              <h1 className='text-[30px] text-[#0f0f0f] font-bold'>75%</h1>
-              <p className='text-sm text-[#3d3c3c]'>WorkSync Redesign</p>
-            </div>
-            <div>
-              <h1 className='text-[25px] text-[#202020] font-bold'>100%</h1>
-              <p className='text-sm text-[#3d3c3c]'>HR System API</p>
-            </div>
-          </div>
-
-          <div className="rounded-xl p-2 w-[80%] h-80">
-            <h2 className="text-lg font-semibold text-[#252525] mb-2">Growth Overview</h2>
-            <ResponsiveContainer width="95%" height="90%">
-              <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="projects" stroke="#3b82f6" strokeWidth={3} name="Projects" />
-                <Line type="monotone" dataKey="employees" stroke="#10b981" strokeWidth={3} name="Employees" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+        <div>
+          <h1 className="text-[25px] text-[#202020] font-bold">100%</h1>
+          <p className="text-sm text-[#3d3c3c]">HR System API</p>
         </div>
       </div>
-    </main>
+
+      {/* Chart Section */}
+      <div className="w-full md:w-[95%] h-80 rounded-xl p-2 hidden sm:block">
+        <h2 className="text-lg font-semibold text-[#252525] mb-2">Growth Overview</h2>
+        <ResponsiveContainer width="100%" height="90%">
+          <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="projects"
+              stroke="#3b82f6"
+              strokeWidth={3}
+              name="Projects"
+            />
+            <Line
+              type="monotone"
+              dataKey="employees"
+              stroke="#10b981"
+              strokeWidth={3}
+              name="Employees"
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  </div>
+</main>
+
   );
 }

@@ -47,17 +47,17 @@ export default function Login() {
 
 
   return (
-    <main className="flex flex-col bg-[#ececec] justify-center items-center w-full h-screen">
+    <main className="flex flex-col px-2 bg-[#ececec] justify-center items-center w-full h-screen">
         <h1 className="text-[#353434] font-bold text-2xl mb-2">WORKSYNC</h1>
         <p className="text-[#353535] mb-4">Sign in and manage your system</p>
 
 
-        <div className="flex flex-col justify-center items-center w-80 h-auto bg-white rounded-xl">
-          <div className="flex flex-col justify-center items-center p-8 w-full h-[70%]">
+        <div className="flex flex-col justify-center items-center w-70 sm:w-80 h-auto bg-white rounded-xl">
+          <div className="flex flex-col justify-center items-center py-2 px-3 w-full h-[70%]">
           
             <p className="text-[#353535] text-md font-bold mb-4">Login</p>
 
-            <form onSubmit={handleSubmit} className="w-full">
+            <form onSubmit={handleSubmit} className="w-full px-2">
               <div className="flex items-center gap-2 mb-5 border border-[#9b9999] py-2 px-4 rounded-lg">
                   <MdOutlineEmail className="text-[#636262] text-[20px]" />
                   <input
@@ -107,9 +107,10 @@ export default function Login() {
               </Link>
             </div>
 
-            <div className="flex flex-col justify-center items-center w-full mt-5">
-              <p className="text-xs text-[#6b6a6a] mb-1">e.g email: admin.khutso@gmail.com</p>
-              <p className="text-xs text-[#6b6a6a] mb-1">e.g password: Khutso0000</p>
+            <div className="flex flex-col justify-center items-center w-full mt-5 py-2">
+              <h1 className="text-[#424141] text-sm mb-2 font-bold">Demo Account</h1>
+              <p className="text-xs text-[#6b6a6a] mb-1">- admin.khutso@gmail.com / Khutso0000 </p>
+              <p className="text-xs text-[#6b6a6a] mb-1">- khutso@gmail.com / Khutso0 </p>
             </div>
 
           </div>

@@ -5,7 +5,7 @@ import API from '../../utils/axios';
 import toast from 'react-hot-toast';
 import { BiEditAlt } from "react-icons/bi";
 import ProfileInfo from './ProfileInfo';
-import ChangePassword from './ChangePassword';
+
 
 export default function ProfilePicture() {
   const { user, setUser } = useContext(AuthContext);
@@ -48,8 +48,18 @@ const handleUpload = async (e) => {
     setPreview('');
     setShowProfile(false);
   } catch (err) {
-    console.error('Error response:', err?.response?.data);
-    toast.error(err?.response?.data?.message || 'Upload failed');
+      console.error('🔴 Upload failed:', err) // Show the whole error
+  if (err.response) {
+    console.error('🔴 Server response:', err.response);
+    toast.error(err.response.data?.message || 'Server error');
+  } else if (err.request) {
+    console.error('🟡 No response received:', err.request);
+    toast.error('No response from server');
+  } else {
+    console.error('⚠️ Error setting up request:', err.message);
+    toast.error(err.message);
+  }
+
   } finally {
     setLoading(false);
   }
@@ -65,11 +75,17 @@ const handleUpload = async (e) => {
         <div className="flex flex-col md:flex-row items-start gap-6 w-full md:w-1/2">
           <div className="w-24 h-24 rounded-full overflow-hidden border border-gray-300">
             {preview || user?.profilePicture ? (
-              <img
-                src={preview || `http://localhost:5000/${user.profilePicture}`}
+             <img
+                src={
+                  preview ||
+                  (user?.profilePicture?.startsWith('uploads/')
+                    ? `http://localhost:5000/${user.profilePicture}`
+                    : user?.profilePicture)
+                }
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
+
             ) : (
               <div className="flex items-center justify-center w-full h-full bg-gray-100 text-gray-400 text-sm">
                 No Image
@@ -92,7 +108,7 @@ const handleUpload = async (e) => {
 
         {/* Right: Change Password */}
         <div className="w-full md:w-1/2">
-          <ChangePassword />
+       
         </div>
       </div>
 

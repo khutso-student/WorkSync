@@ -31,7 +31,7 @@ export default function ChangePassword() {
   };
 
   return (
-    <section className="w-full bg-white rounded-xl border border-gray-200 shadow-sm px-6 py-5">
+    <section className="max-w-5xl mx-auto bg-white rounded-xl border border-gray-200 shadow-sm px-6 py-3">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Change Password</h3>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -43,7 +43,7 @@ export default function ChangePassword() {
             value={formData.currentPassword}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 text-sm rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full px-4 py-1 text-sm rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
         </div>
 
@@ -55,7 +55,7 @@ export default function ChangePassword() {
             value={formData.newPassword}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 text-sm rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full px-4 py-1 text-sm rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
         </div>
 
@@ -63,9 +63,9 @@ export default function ChangePassword() {
           <button
             type="submit"
             disabled={loading}
-            className="inline-block px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition"
+            className="inline-block px-3 py-1.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition"
           >
-            {loading ? 'Changing...' : 'Change Password'}
+            {loading ? 'Changing...' : 'Change '}
           </button>
         </div>
       </form>

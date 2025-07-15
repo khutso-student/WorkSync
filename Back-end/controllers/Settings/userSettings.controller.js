@@ -43,10 +43,12 @@ exports.updateProfile = async (req, res) => {
       { new: true }
     ).select('-password');
 
-    res.json({ message: "Profile updated successfully", user: updated });
+    return res.json({ message: "Profile updated successfully", user: updated });
   } catch (err) {
     console.error('Error updating profile:', err);
-    res.status(500).json({ message: "Failed to update profile" });
+    if (!res.headersSent) {
+      return res.status(500).json({ message: "Failed to update profile" });
+    }
   }
 };
 
@@ -77,32 +79,33 @@ exports.changePassword = async (req, res) => {
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
-    res.json({ message: "Password updated successfully" });
+    return res.json({ message: "Password updated successfully" });
   } catch (err) {
     console.error('Error changing password:', err);
-    res.status(500).json({ message: "Failed to change password" });
+    if (!res.headersSent) {
+      return res.status(500).json({ message: "Failed to change password" });
+    }
   }
 };
 
 exports.uploadProfilePicture = async (req, res) => {
-    console.log('📦 Uploaded file:', req.file); // <== This should NOT be undefined
-    console.log('🧍‍♂️ Authenticated user:', req.user);
+  console.log('📦 Uploaded file:', req.file);
+  console.log('🧍‍♂️ Authenticated user:', req.user);
+
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    // Validate file type (accept only images)
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedMimeTypes.includes(req.file.mimetype)) {
-      // Delete the uploaded file if invalid
       fs.unlinkSync(req.file.path);
       return res.status(400).json({ message: "Only image files are allowed" });
     }
 
-    // Optionally, you can move the file to a permanent storage or cloud storage here
+    // ✅ Save relative path to DB (so the frontend can load it)
+    const imageUrl = `uploads/${req.file.filename}`;
 
-    const imageUrl = req.file.path; // store the path or URL as per your setup
 
     const updated = await User.findByIdAndUpdate(
       req.user._id,
@@ -116,3 +119,4 @@ exports.uploadProfilePicture = async (req, res) => {
     res.status(500).json({ message: "Failed to upload profile picture" });
   }
 };
+

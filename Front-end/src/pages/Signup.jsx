@@ -36,12 +36,12 @@ export default function Signup() {
   };
 
   return (
-    <main className="flex flex-col bg-[#ececec] justify-center items-center w-full h-screen">
+    <main className="flex flex-col px-2 bg-[#ececec] justify-center items-center w-full h-screen">
         <h1 className="text-[#353434] font-bold text-2xl mb-2">WORKSYNC</h1>
         <p className="text-[#353535] mb-4">Sign in and manage your system</p>
 
 
-        <div className="flex flex-col justify-center items-center w-80 h-auto bg-white rounded-xl">
+        <div className="flex flex-col justify-center items-center w-70 sm:w-80 h-auto bg-white rounded-xl">
           <div className="flex flex-col justify-center items-center p-8 w-full h-[70%]">
           
             <p className="text-[#353535] text-md font-bold mb-4">Sign Up</p>

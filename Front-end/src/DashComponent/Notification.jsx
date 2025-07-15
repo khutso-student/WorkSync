@@ -34,7 +34,7 @@ export default function Notification({ notifications, clearNotifications }) {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded shadow-md z-10">
+        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded shadow-md z-1000">
           <div className="flex justify-between p-2 ">
             <span className="font-semibold">Notifications</span>
             <button onClick={clearNotifications} className="text-xs text-blue-500 cursor-pointer hover:text-[#2c2c2c] duration-300">Clear all</button>
