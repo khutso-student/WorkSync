@@ -15,7 +15,7 @@ export const ChatProvider = ({ children, user }) => {
   useEffect(() => {
     if (!currentUser) return;
 
-    const socketInstance = io('http://localhost:5000'); // Replace with your backend
+    const socketInstance = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
     setSocket(socketInstance);
 
     // Emit user connection
