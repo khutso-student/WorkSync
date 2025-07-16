@@ -25,9 +25,8 @@ export default function AdminRoles() {
   const fetchRoles = async () => {
     if (!isAdmin) return;
     try {
-      const res = await API.get('/api/settings/roles', {
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
+      // Removed '/api' prefix here (axios baseURL already includes it)
+      const res = await API.get('/settings/roles');
       setRoles(res.data);
     } catch (err) {
       toast.error('Failed to fetch roles');
@@ -55,14 +54,11 @@ export default function AdminRoles() {
     try {
       setLoading(true);
       if (editId) {
-        await API.put(`/api/settings/roles/${editId}`, payload, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
+        // Removed '/api' prefix and manual headers (token added by interceptor)
+        await API.put(`/settings/roles/${editId}`, payload);
         toast.success('Role updated');
       } else {
-        await API.post('/api/settings/roles', payload, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
+        await API.post('/settings/roles', payload);
         toast.success('Role created');
       }
       setForm({ name: '', permissions: '' });
@@ -91,9 +87,8 @@ export default function AdminRoles() {
     if (!window.confirm('Are you sure you want to delete this role?')) return;
 
     try {
-      await API.delete(`/api/settings/roles/${id}`, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
+      // Removed '/api' prefix and manual headers
+      await API.delete(`/settings/roles/${id}`);
       toast.success('Role deleted');
       fetchRoles();
     } catch (err) {

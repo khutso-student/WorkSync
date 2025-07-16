@@ -1,5 +1,5 @@
 // employeesAPI.js
-import api from './api'; // your axios instance
+import api from './api'; 
 
 
 export const getEmployees = async (search = '') => {
