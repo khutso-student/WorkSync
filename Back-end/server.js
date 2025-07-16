@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const http = require('http');
-const path = require('path'); // ✅ Required to serve static folders properly
+const path = require('path');
 
 const connectDB = require('./config/db');
 
@@ -25,27 +25,38 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
-// ✅ Setup socket.io server
+// ✅ Add all allowed frontend URLs here
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://worksync-dbgz.onrender.com',     // optional for previewing backend
+  'https://work-sync-nine.vercel.app'       // ✅ your Vercel frontend
+];
+
+// ✅ CORS for socket.io
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173', 'https://worksync-dbgz.onrender.com'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true
   }
 });
 setupSocket(io);
 
-// ✅ CORS middleware
+// ✅ CORS middleware for API routes
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://worksync-dbgz.onrender.com'],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS not allowed from this origin'));
+  },
   credentials: true
 }));
 
-// ✅ Body parser
 app.use(express.json());
 
-// ✅ Serve uploads folder for profile pictures and static files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // 👈 Crucial for profile pictures
+// ✅ Static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ✅ API Routes
 app.use('/api/auth', AuthRoutes);
@@ -58,10 +69,10 @@ app.use('/api/settings/default-status', defaultStatusRoutes);
 app.use('/api/settings/user-logs', userLogsRoutes);
 app.use('/api/settings/user', userSettingsRoutes);
 
-// ✅ Ping test
+// ✅ Ping
 app.get('/api/ping', (req, res) => res.json({ message: 'Server is alive!' }));
 
-// ✅ 404 fallback
+// ✅ 404
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
