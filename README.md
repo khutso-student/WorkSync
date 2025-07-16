@@ -6,6 +6,7 @@
 
 - 🔗 **Frontend (Vercel):** [https://work-sync-nine.vercel.app](https://work-sync-nine.vercel.app)  
 - 🔧 **Backend (Render API):** [https://worksync-dbgz.onrender.com/api](https://worksync-dbgz.onrender.com/api)
+- Pitchdeck https://gamma.app/docs/WorkSync-Smart-Employee-Management-and-Workplace-Communication-Sy-kvxsonzirt9och4
 
 ---
 
