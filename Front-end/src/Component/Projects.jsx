@@ -16,7 +16,7 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
   const { user } = useContext(AuthContext);
   const [showPop, setShowPop] = useState(false);
   const [error, setError] = useState('');
-  const [load, setLoad] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState(parentProjects);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -45,7 +45,7 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
         await fetchProjects(searchTerm);
       } else {
         try {
-          setLoad(true);
+          setLoading(true);
           const allProjects = await refreshProjects();
           if (!Array.isArray(allProjects)) {
             console.warn("⚠️ refreshProjects returned non-array:", allProjects);
@@ -62,7 +62,7 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
           console.error("❌ refreshProjects failed:", err);
           setError('Failed to fetch projects');
         } finally {
-          setLoad(false);
+          setLoading(false);
         }
       }
     }, 500);
@@ -72,7 +72,7 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
 
   // Fetch projects helper
   const fetchProjects = async (search = '') => {
-    setLoad(true);
+    setLoading(true);
     try {
       const data = await getProjects(search);
       setProjects(data);
@@ -83,7 +83,16 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
       setError('Failed to fetch projects');
       return [];
     } finally {
-      setLoad(false);
+      setLoading(false);
+    }
+  };
+
+  // Unified reload projects function
+  const reloadProjects = async () => {
+    if (refreshProjects) {
+      return await refreshProjects();
+    } else {
+      return await fetchProjects();
     }
   };
 
@@ -93,26 +102,31 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Basic validation helper
+  const isFormValid = () => {
+    return formData.title.trim().length > 0 && formData.description.trim().length > 0;
+  };
+
   const handleAdd = async (e) => {
     e.preventDefault();
     if (user?.role !== 'admin') {
       return toast.error('Only admin can add projects');
     }
+    if (!isFormValid()) {
+      return toast.error('Title and Description are required');
+    }
     try {
+      setLoading(true);
       await createProject(formData);
       setFormData({ title: '', description: '', status: 'Not complete' });
       setEditingId(null);
       setShowPop(false);
       toast.success('Project added successfully!');
-      if (refreshProjects) {
-        await refreshProjects();
-      } else {
-        const data = await fetchProjects();
-        setProjects(data);
-        setProjectCount(data.length);
-      }
+      await reloadProjects();
     } catch (error) {
       toast.error('Error adding project');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,25 +144,26 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    if (editingId == null) return;
     let updateData = formData;
     if (user?.role === 'employee') {
       updateData = { status: formData.status };
     }
+    if (!isFormValid() && user?.role === 'admin') {
+      return toast.error('Title and Description are required');
+    }
     try {
+      setLoading(true);
       await updateProject(editingId, updateData);
       setEditingId(null);
       setFormData({ title: '', description: '', status: 'Not complete' });
       setShowPop(false);
       toast.success('Project updated successfully!');
-      if (refreshProjects) {
-        await refreshProjects();
-      } else {
-        const updatedProjects = await fetchProjects();
-        setProjects(updatedProjects);
-        setProjectCount(updatedProjects.length);
-      }
+      await reloadProjects();
     } catch (error) {
       toast.error('Error updating project');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -158,17 +173,14 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
     }
     if (!window.confirm('Delete this project?')) return;
     try {
+      setLoading(true);
       await deleteProject(id);
       toast.success('Project deleted successfully!');
-      if (refreshProjects) {
-        await refreshProjects();
-      } else {
-        const data = await fetchProjects();
-        setProjects(data);
-        setProjectCount(data.length);
-      }
+      await reloadProjects();
     } catch (error) {
       toast.error('Error deleting project');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -195,7 +207,7 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
                 onChange={handleChange}
                 className="w-full text-sm py-1 px-2 border border-[#646363] rounded-md focus:outline-blue-500"
                 required
-                disabled={user?.role !== 'admin'}
+                disabled={loading || user?.role !== 'admin'}
               />
               <textarea
                 name="description"
@@ -205,13 +217,14 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
                 className="w-full p-3 text-sm border border-[#646363] rounded-md focus:outline-blue-500"
                 required
                 rows={4}
-                disabled={user?.role !== 'admin'}
+                disabled={loading || user?.role !== 'admin'}
               />
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
                 className="w-full py-1 px-2 text-sm border rounded-md focus:outline-blue-500"
+                disabled={loading}
               >
                 <option value="Not complete">Not complete</option>
                 <option value="In progress">In progress</option>
@@ -221,17 +234,18 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
               <div className="flex gap-4 justify-end">
                 <button
                   type="submit"
-                  disabled={load}
+                  disabled={loading}
                   className={`bg-blue-600 text-white text-sm cursor-pointer px-4 py-2 rounded-md transition ${
-                    load ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-500'
+                    loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-500'
                   }`}
                 >
-                  {editingId ? 'Update ' : 'Add '}
+                  {editingId ? 'Update' : 'Add'}
                 </button>
 
                 <button
                   type="button"
                   onClick={cancelEdit}
+                  disabled={loading}
                   className="bg-red-500 text-white text-sm px-4 py-2 cursor-pointer rounded-md hover:bg-red-400 transition"
                 >
                   Cancel
@@ -242,10 +256,10 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
         </div>
       )}
 
-      <div className="flex flex-col  sm:flex-row justify-between items-start sm:items-center mb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5">
         <div className='w-full sm:w-auto'>
           <h1 className="text-2xl sm:3xl font-bold text-[#383838]">Projects</h1>
-          <p className="text-sm  text-[#525050]">
+          <p className="text-sm text-[#525050]">
             Total Number of projects <span>{parentProjects.length}</span>
           </p>
         </div>
@@ -257,6 +271,7 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border border-[#747373] rounded-md focus:outline-none text-sm"
+            disabled={loading}
           />
         </div>
 
@@ -267,7 +282,8 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
               setFormData({ title: '', description: '', status: 'Not complete' });
               setShowPop(true);
             }}
-            className="bg-blue-500 flex items-center  gap-1 py-2 px-2 text-white text-sm rounded-lg hover:bg-blue-400"
+            className="bg-blue-500 flex items-center gap-1 py-2 px-2 text-white text-sm rounded-lg hover:bg-blue-400"
+            disabled={loading}
           >
             <IoIosAdd className="text-xl" />
             New Project
@@ -275,7 +291,7 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
         )}
       </div>
 
-      {load ? (
+      {loading ? (
         <p className="text-center text-gray-500 mt-8">Loading projects...</p>
       ) : error ? (
         <p className="text-center text-red-600 mt-8">{error}</p>
@@ -312,6 +328,7 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
                       <button
                         onClick={() => startEdit(project)}
                         className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-400 transition text-sm"
+                        disabled={loading}
                       >
                         <MdOutlineEdit />
                       </button>
@@ -320,6 +337,7 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
                       <button
                         onClick={() => handleDelete(project._id)}
                         className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition text-sm"
+                        disabled={loading}
                       >
                         <RiDeleteBin6Line />
                       </button>

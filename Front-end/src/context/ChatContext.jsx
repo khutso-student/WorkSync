@@ -9,38 +9,34 @@ export const ChatProvider = ({ children, user }) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typingUser, setTypingUser] = useState(null);
 
-  // Use localStorage fallback in case 'user' is not passed
+  // Use localStorage fallback if no user prop passed
   const currentUser = user || JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     if (!currentUser) return;
-     console.log("Socket URL:", import.meta.env.VITE_SOCKET_URL);
 
     const socketInstance = io(import.meta.env.VITE_SOCKET_URL, {
-    transports: ['websocket'],
+      transports: ['websocket'],
+      // You can add more options here as needed
     });
-    console.log("Connecting to socket at:", import.meta.env.VITE_SOCKET_URL);
-    setSocket(socketInstance);
 
-    // Emit user connection
-    socketInstance.emit('userConnected', currentUser);
+    // Only emit 'userConnected' after socket connects to avoid race conditions
+    socketInstance.on('connect', () => {
+      socketInstance.emit('userConnected', currentUser);
+    });
 
-    // Chat history
     socketInstance.on('chatHistory', (msgs) => {
       setMessages(msgs);
     });
 
-    // New message
     socketInstance.on('chatMessage', (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
 
-    // Online users
     socketInstance.on('onlineUsers', (users) => {
       setOnlineUsers(users);
     });
 
-    // Typing
     socketInstance.on('typing', (name) => {
       setTypingUser(name);
     });
@@ -49,8 +45,11 @@ export const ChatProvider = ({ children, user }) => {
       setTypingUser(null);
     });
 
-    // Cleanup on unmount
+    setSocket(socketInstance);
+
+    // Clean up on unmount
     return () => {
+      socketInstance.off('connect');
       socketInstance.off('chatHistory');
       socketInstance.off('chatMessage');
       socketInstance.off('onlineUsers');
@@ -59,6 +58,9 @@ export const ChatProvider = ({ children, user }) => {
       socketInstance.disconnect();
     };
   }, [currentUser]);
+
+  // Debounce typing events to reduce event spam (optional)
+  let typingTimeout = null;
 
   const sendMessage = (message) => {
     if (socket && currentUser) {
@@ -71,11 +73,22 @@ export const ChatProvider = ({ children, user }) => {
   };
 
   const startTyping = () => {
-    if (socket && currentUser) socket.emit('typing', currentUser.name);
+    if (socket && currentUser) {
+      socket.emit('typing', currentUser.name);
+      // Clear previous timeout and set new to stop typing after 2s inactivity
+      if (typingTimeout) clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        stopTyping();
+      }, 2000);
+    }
   };
 
   const stopTyping = () => {
     if (socket) socket.emit('stopTyping');
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+      typingTimeout = null;
+    }
   };
 
   return (

@@ -41,7 +41,7 @@ export default function Signup() {
     <main className="flex flex-col px-2 bg-[#ececec] justify-center items-center w-full h-screen">
         <img src={Logo} className="w-18 shadow-none mb-1" alt="Website Logo" />
         <h1 className="text-[#0BB5F3] text-2xl font-semibold mb-2">Work-Sync</h1>
-        <p className="text-[#353535] mb-4">Sign in and manage your system</p>
+        <p className="text-[#353535] mb-4">Create an account to manage your system</p>
 
 
         <div className="flex flex-col justify-center items-center w-70 sm:w-80 h-auto bg-white rounded-xl">
@@ -98,7 +98,7 @@ export default function Signup() {
                     loading ? 'bg-blue-400 text-white cursor-not-allowed' : 'bg-blue-400 hover:bg-blue-400 hover:text-white'
                 }`}
                 >
-                {loading ? 'Logging in...' : 'Login'}
+                {loading ? 'Signing...' : 'Sign in'}
             </button>
             </form>
 

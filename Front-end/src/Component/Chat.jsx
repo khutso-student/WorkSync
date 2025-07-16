@@ -1,5 +1,5 @@
 // src/components/Chat.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useChat } from '../context/ChatContext';
 import { HiOutlineUserGroup } from "react-icons/hi2";
 import { IoClose } from "react-icons/io5";
@@ -10,6 +10,15 @@ export default function Chat() {
   const [newMessage, setNewMessage] = useState('');
   const [showUsers, setShowUsers] = useState(false);
   const messageEndRef = useRef(null);
+
+  // Memoize current user's name to avoid parsing localStorage multiple times
+  const currentUser = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"))?.name;
+    } catch {
+      return null;
+    }
+  }, []);
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -30,7 +39,7 @@ export default function Chat() {
   };
 
   return (
-    <div className="relative flex flex-col  h-screen w-full rounded-lg shadow-lg">
+    <div className="relative flex flex-col h-screen w-full rounded-lg shadow-lg">
       {/* Header */}
       <div className="bg-[#f3f3f3] text-white border-b border-[#d4d4d4] p-4 flex justify-between items-center">
         <h2 className="font-bold text-lg text-[#474747]">WORKSYNC Team Chat</h2>
@@ -38,6 +47,7 @@ export default function Chat() {
         <button
           onClick={() => setShowUsers(!showUsers)}
           className="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 px-3 py-1 rounded-full transition"
+          aria-label={`Toggle online users panel. ${onlineUsers.length} users online.`}
         >
           <HiOutlineUserGroup size={20} />
           <span className="text-sm font-medium cursor-pointer">{onlineUsers.length}</span>
@@ -46,10 +56,12 @@ export default function Chat() {
 
       {/* Floating Online Users Panel */}
       {showUsers && (
-        <div className="absolute right-4 top-20 z-30 w-64 bg-white border border-[#9b9898] shadow-lg rounded-lg p-4">
+        <div className="absolute right-4 top-20 z-30 w-64 bg-white border border-[#9b9898] shadow-lg rounded-lg p-4" role="dialog" aria-modal="true" aria-labelledby="online-users-title">
           <div className="flex justify-between items-center mb-2">
-            <h3 className="text-sm font-semibold text-gray-700">Online Users</h3>
-            <button onClick={() => setShowUsers(false)}><IoClose size={22} className='hover:text-blue-600 text-[#363636] cursor-pointer' /></button>
+            <h3 id="online-users-title" className="text-sm font-semibold text-gray-700">Online Users</h3>
+            <button onClick={() => setShowUsers(false)} aria-label="Close online users panel">
+              <IoClose size={22} className='hover:text-blue-600 text-[#363636] cursor-pointer' />
+            </button>
           </div>
           <div className="max-h-48 overflow-y-auto space-y-2">
             {onlineUsers.length === 0 && (
@@ -58,13 +70,13 @@ export default function Chat() {
             {onlineUsers.map((user, i) => (
               <div
                 key={i}
-                className="flex justify-between  bg-blue-50 border border-blue-100 px-3 py-2 rounded text-sm text-blue-900 shadow-sm"
+                className="flex justify-between bg-blue-50 border border-blue-100 px-3 py-2 rounded text-sm text-blue-900 shadow-sm"
               >
                 <div>
-                <p className="font-medium">{user.name}</p>
-                <p className="text-xs text-gray-600">{user.role}</p>
+                  <p className="font-medium">{user.name}</p>
+                  <p className="text-xs text-gray-600">{user.role}</p>
                 </div>
-                    <span className='w-2 h-2 rounded-[100%] mt-1 bg-green-500'></span>
+                <span className='w-2 h-2 rounded-full mt-1 bg-green-500' aria-label="Online status"></span>
               </div>
             ))}
           </div>
@@ -72,12 +84,12 @@ export default function Chat() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 bg-gray-50 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-3 bg-gray-50 space-y-3" role="log" aria-live="polite" aria-relevant="additions">
         {messages.map((msg, i) => {
-          const isOwn = msg.user === JSON.parse(localStorage.getItem("user"))?.name;
+          const isOwn = msg.user === currentUser;
           return (
             <div
-              key={i}
+              key={msg.id || msg.timestamp || i}
               className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`max-w-md px-4 py-2 rounded-lg shadow text-sm ${
@@ -87,7 +99,7 @@ export default function Chat() {
                   {isOwn ? 'You' : msg.user}
                 </div>
                 <div>{msg.message || msg.text}</div>
-                <div className="text-[10px] text-gray-300 mt-1 text-right">
+                <div className="text-[10px] text-gray-300 mt-1 text-right" aria-label={`Sent at ${new Date(msg.createdAt || msg.timestamp).toLocaleTimeString()}`}>
                   {new Date(msg.createdAt || msg.timestamp).toLocaleTimeString()}
                 </div>
               </div>
@@ -99,39 +111,40 @@ export default function Chat() {
 
       {/* Typing indicator */}
       {typingUser && (
-        <div className="px-4 py-1 text-sm italic text-gray-600 bg-gray-100">
+        <div className="px-4 py-1 text-sm italic text-gray-600 bg-gray-100" aria-live="polite">
           {typingUser} is typing...
         </div>
       )}
 
       {/* Input */}
-      <div className='flex justify-center items-center w-full  mb-6 sm:mb-2'>
-        <div className=' w-[90%] sm:w-[70%] py-2 px-4'>
-         
-              <form onSubmit={handleSubmit} className="p-2 w-full flex gap-2">
-                  <div className='bg-[#e4e4e4] w-full rounded-lg'>
-                      <input
-                      type="text"
-                      className="flex-1 px-4 py-2 focus:outline-none w-full"
-                      placeholder="Type your message..."
-                      value={newMessage}
-                      onChange={handleInputChange}
-                      />
-                  </div>
-          
-                  <button
-                  type="submit"
-                  className="bg-blue-600 text-white cursor-pointer px-3 py-2 rounded-full hover:bg-blue-700 transition"
-                  >
-                      <IoSendSharp />
-                  </button>
-            </form>
+      <div className='flex justify-center items-center w-full mb-6 sm:mb-2'>
+        <div className='w-[90%] sm:w-[70%] py-2 px-4'>
+          <form onSubmit={handleSubmit} className="p-2 w-full flex gap-2" aria-label="Send new message form">
+            <div className='bg-[#e4e4e4] w-full rounded-lg'>
+              <input
+                type="text"
+                aria-label="Type your message"
+                className="flex-1 px-4 py-2 focus:outline-none w-full"
+                placeholder="Type your message..."
+                value={newMessage}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <button
+              type="submit"
+              aria-label="Send message"
+              className="bg-blue-600 text-white cursor-pointer px-3 py-2 rounded-full hover:bg-blue-700 transition"
+            >
+              <IoSendSharp />
+            </button>
+          </form>
         </div>
       </div>
-                <footer className="w-full text-center py-4 text-gray-300 text-sm">
-                  © {new Date().getFullYear()} Work-Sync
-                </footer>
-   
+
+      <footer className="w-full text-center py-4 text-gray-300 text-sm">
+        © {new Date().getFullYear()} Work-Sync
+      </footer>
     </div>
   );
 }
