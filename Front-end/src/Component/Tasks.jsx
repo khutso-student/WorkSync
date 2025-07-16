@@ -2,7 +2,7 @@ export default function Tasks({ completedProjects }) {
   return (
     <div className="p-4">
           <div className="mb-5">
-            <h1 className="text-3xl font-bold text-[#383838]">Completed Tasks</h1>
+            <h1 className="text-2xl sm:3xl font-bold text-[#383838]">Completed Tasks</h1>
             <p className="text-sm text-[#525050]">
               Total Number of completed projects <span>{completedProjects.length}</span>
             </p>

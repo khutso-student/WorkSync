@@ -11,6 +11,7 @@ export default function Dashboard({
   searchTerm,
   setSearchTerm,
   completedProjects
+ 
 }) {
   // ✅ useState inside function
   const [user, setUser] = useState(null);

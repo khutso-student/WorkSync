@@ -135,14 +135,14 @@ export default function Employees({ setEmployeeCount, setEmployees, addNotificat
 
   return (
     <div className='w-full h-screen p-2'>
-      <div className='flex justify-between items-center  mb-5 p-2'>
-        <div>
-          <h2 className='text-3xl font-bold text-[#383838]'>Employees</h2>
-         <p className='text-sm text-[#4e4e4e]'>Total Number of employees <span>{localEmployees.length}</span></p>
+      <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 p-2'>
+        <div className='w-full sm:w-auto mb-5 sm:mb-0'>
+          <h2 className='text-2xl sm:text-3xl font-bold text-[#383838]'>Employees</h2>
+         <p className='text-sm  text-[#4e4e4e]'>Total Number of employees <span>{localEmployees.length}</span></p>
         </div>
 
 
-         <div className="">
+         <div className="w-full sm:w-1/2 mb-0 ">
             <SearchInput
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -154,9 +154,9 @@ export default function Employees({ setEmployeeCount, setEmployees, addNotificat
 
 
           {user?.role === 'admin' && ( 
-          <div>
+          <div className='flex'>
             <button onClick={() => setShowModel(!showModel)}
-              className='bg-blue-400 py-1 px-5 rounded-lg cursor-pointer hover:bg-blue-300'>
+              className='bg-blue-400 ml-1 mt-2 sm:mt-0 py-1 px-5 rounded-lg cursor-pointer hover:bg-blue-300'>
               {showModel ? <CiCircleRemove className="text-blue-600" /> : <IoIosAdd className="text-blue-600" />}
             </button>
 

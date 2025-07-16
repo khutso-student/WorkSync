@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { MdOutlineEmail } from "react-icons/md";
 import { CiLock } from "react-icons/ci";
+import Logo from '../assets/Icon-Logo.svg'
+import Logos from '../assets/Icon-Logo.svg'
+
 
 import { Link } from "react-router-dom"
 export default function Login() {
@@ -48,8 +51,9 @@ export default function Login() {
 
   return (
     <main className="flex flex-col px-2 bg-[#ececec] justify-center items-center w-full h-screen">
-        <h1 className="text-[#353434] font-bold text-2xl mb-2">WORKSYNC</h1>
-        <p className="text-[#353535] mb-4">Sign in and manage your system</p>
+        <img src={Logos} className="w-18 shadow-none mb-1" alt="Website Logo" />
+        <h1 className="text-[#0BB5F3] text-2xl font-semibold mb-2">Work-Sync</h1>
+        <p className="text-[#353535] mb-4">Login and manage your system</p>
 
 
         <div className="flex flex-col justify-center items-center w-70 sm:w-80 h-auto bg-white rounded-xl">
@@ -102,7 +106,7 @@ export default function Login() {
 
             <div className="flex justify-center items-center mt-2 w-full">
               <p className="text-sm text-[#535252]">Don't have account?</p>
-              <Link to="/signup" className="text-sm text-blue-600 ml-1.5 font-semibold hover:underline">
+              <Link to="/signup" className="text-sm text-blue-500 ml-1.5 font-semibold hover:underline">
                 Sign up
               </Link>
             </div>
@@ -115,7 +119,9 @@ export default function Login() {
 
           </div>
         </div>
-      
+              <footer className="w-full text-center py-4 text-gray-500 text-sm mt-2">
+                 © {new Date().getFullYear()} WorkSync. All rights reserved.
+            </footer>
     </main>
   );
 }

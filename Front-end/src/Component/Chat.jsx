@@ -33,8 +33,8 @@ export default function Chat() {
     <div className="relative flex flex-col  h-screen w-full rounded-lg shadow-lg">
       {/* Header */}
       <div className="bg-[#f3f3f3] text-white border-b border-[#d4d4d4] p-4 flex justify-between items-center">
-        <h2 className="font-bold text-lg text-[#474747]">WorkSync Team Chat</h2>
-        <p className='text-[#5e5c5c]'>Live Chat</p>
+        <h2 className="font-bold text-lg text-[#474747]">WORKSYNC Team Chat</h2>
+        <p className='text-[#5e5c5c] hidden sm:block'>Live Chat</p>
         <button
           onClick={() => setShowUsers(!showUsers)}
           className="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 px-3 py-1 rounded-full transition"
@@ -105,29 +105,32 @@ export default function Chat() {
       )}
 
       {/* Input */}
-      <div className='flex justify-center items-center w-full  mb-2'>
-        <div className=' w-[70%] py-2 px-4'>
+      <div className='flex justify-center items-center w-full  mb-6 sm:mb-2'>
+        <div className=' w-[90%] sm:w-[70%] py-2 px-4'>
          
-        <form onSubmit={handleSubmit} className="p-4  flex gap-2">
-            <div className='bg-[#e4e4e4] w-full rounded-lg'>
-                <input
-                type="text"
-                className="flex-1 px-4 py-2 focus:outline-none w-full"
-                placeholder="Type your message..."
-                value={newMessage}
-                onChange={handleInputChange}
-                />
-            </div>
-    
-            <button
-            type="submit"
-            className="bg-blue-600 text-white cursor-pointer px-5 py-2 rounded-full hover:bg-blue-700 transition"
-            >
-                <IoSendSharp />
-            </button>
-      </form>
+              <form onSubmit={handleSubmit} className="p-2 w-full flex gap-2">
+                  <div className='bg-[#e4e4e4] w-full rounded-lg'>
+                      <input
+                      type="text"
+                      className="flex-1 px-4 py-2 focus:outline-none w-full"
+                      placeholder="Type your message..."
+                      value={newMessage}
+                      onChange={handleInputChange}
+                      />
+                  </div>
+          
+                  <button
+                  type="submit"
+                  className="bg-blue-600 text-white cursor-pointer px-3 py-2 rounded-full hover:bg-blue-700 transition"
+                  >
+                      <IoSendSharp />
+                  </button>
+            </form>
         </div>
       </div>
+                <footer className="w-full text-center py-4 text-gray-300 text-sm">
+                  © {new Date().getFullYear()} Work-Sync
+                </footer>
    
     </div>
   );

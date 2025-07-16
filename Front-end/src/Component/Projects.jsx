@@ -242,15 +242,15 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-5">
-        <div>
-          <h1 className="text-3xl font-bold text-[#383838]">Projects</h1>
-          <p className="text-sm text-[#525050]">
+      <div className="flex flex-col  sm:flex-row justify-between items-start sm:items-center mb-5">
+        <div className='w-full sm:w-auto'>
+          <h1 className="text-2xl sm:3xl font-bold text-[#383838]">Projects</h1>
+          <p className="text-sm  text-[#525050]">
             Total Number of projects <span>{parentProjects.length}</span>
           </p>
         </div>
 
-        <div className="my-4">
+        <div className="w-full sm:w-1/2 my-4">
           <input
             type="text"
             placeholder="Search projects..."
@@ -267,7 +267,7 @@ export default function Projects({ projects: parentProjects = [], setProjectCoun
               setFormData({ title: '', description: '', status: 'Not complete' });
               setShowPop(true);
             }}
-            className="bg-blue-500 flex items-center gap-1 py-2 px-3 text-white text-sm rounded-lg hover:bg-blue-400"
+            className="bg-blue-500 flex items-center  gap-1 py-2 px-2 text-white text-sm rounded-lg hover:bg-blue-400"
           >
             <IoIosAdd className="text-xl" />
             New Project
