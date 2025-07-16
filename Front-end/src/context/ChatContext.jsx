@@ -14,8 +14,12 @@ export const ChatProvider = ({ children, user }) => {
 
   useEffect(() => {
     if (!currentUser) return;
+     console.log("Socket URL:", import.meta.env.VITE_SOCKET_URL);
 
-    const socketInstance = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
+    const socketInstance = io(import.meta.env.VITE_SOCKET_URL, {
+    transports: ['websocket'],
+    });
+    console.log("Connecting to socket at:", import.meta.env.VITE_SOCKET_URL);
     setSocket(socketInstance);
 
     // Emit user connection

@@ -28,7 +28,7 @@ const server = http.createServer(app);
 // ✅ Setup socket.io server
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173'],
+    origin: ['http://localhost:5173', 'https://worksync-dbgz.onrender.com'],
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -37,7 +37,7 @@ setupSocket(io);
 
 // ✅ CORS middleware
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: ['http://localhost:5173', 'https://worksync-dbgz.onrender.com'],
   credentials: true
 }));
 
